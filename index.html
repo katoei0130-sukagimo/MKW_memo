@@ -173,6 +173,8 @@ body{font-family:'Noto Sans JP','M PLUS Rounded 1c',sans-serif;background:var(--
 .rb-bd{border-color:rgba(232,121,249,.3)!important;}
 .rb-tx{background:linear-gradient(90deg,#F87171,#FBBF24,#86EFAC,#60A5FA,#E879F9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 </style>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0C0F14">
 </head>
 <body>
 <div id="root"></div>
@@ -597,6 +599,11 @@ function App() {
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+  <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
 </script>
 </body>
 </html>
