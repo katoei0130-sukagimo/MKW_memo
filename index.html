@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MKWorld 道中メモ</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@800;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0C0F14;--surf:#141920;--surf2:#1B2330;--surf3:#232f42;
+  --bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.14);
+  --tx:#EEF2FF;--mt:rgba(238,242,255,.44);--mt2:rgba(238,242,255,.22);
+  --gold:#F5C842;--gold2:#FDE68A;--red:#E8231A;--green:#4ADE80;
+  --r:13px;--r2:9px;
+}
+html{background:var(--bg);}
+body{font-family:'Noto Sans JP','M PLUS Rounded 1c',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+#root{max-width:430px;margin:0 auto;}
+.shell{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);}
+/* ヘッダー */
+.hdr{background:var(--bg);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:100;}
+.hdr-top{display:flex;align-items:center;gap:10px;padding:11px 14px 8px;}
+.logo-mark{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--red),#A0100C);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 12px rgba(232,35,26,.4),inset 0 1px 0 rgba(255,255,255,.15);flex-shrink:0;}
+.logo-words{flex:1;}
+.logo-t{font-family:'M PLUS Rounded 1c',sans-serif;font-size:13px;font-weight:900;background:linear-gradient(90deg,#F5C842,#FDE68A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;}
+.logo-s{font-size:9px;color:var(--mt);font-weight:500;letter-spacing:1.5px;text-transform:uppercase;}
+.hdr-badge{display:flex;align-items:center;gap:4px;background:rgba(245,200,66,.09);border:1px solid rgba(245,200,66,.2);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--gold);}
+.prog-row{padding:0 14px 5px;display:flex;align-items:center;gap:8px;}
+.prog-track{flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),#FBA55A);transition:width .5s;}
+.prog-pct{font-size:10px;color:var(--mt);font-weight:700;}
+/* タブ */
+.tabs{display:flex;border-bottom:1px solid var(--bd);padding:0 10px;overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{display:flex;align-items:center;gap:4px;padding:8px 10px;font-family:inherit;font-size:11px;font-weight:700;color:var(--mt);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .2s;position:relative;bottom:-1px;flex-shrink:0;}
+.tab-btn:hover{color:var(--tx);}
+.tab-btn.on{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-n{background:rgba(255,255,255,.06);border-radius:4px;padding:1px 5px;font-size:10px;}
+.tab-btn.on .tab-n{background:rgba(245,200,66,.12);color:var(--gold2);}
+/* ツールバー */
+.toolbar{padding:10px 14px 8px;display:flex;gap:8px;align-items:center;}
+.srch-bar{flex:1;display:flex;align-items:center;background:var(--surf2);border:2px solid var(--bd2);border-radius:12px;overflow:hidden;transition:all .2s;min-width:0;}
+.srch-bar:focus-within{border-color:var(--gold);box-shadow:0 0 0 4px rgba(245,200,66,.12);background:rgba(245,200,66,.04);}
+.srch-ic{padding:0 8px 0 12px;color:var(--mt);display:flex;align-items:center;flex-shrink:0;font-size:18px;}
+.srch-bar:focus-within .srch-ic{color:var(--gold);}
+.srch-inp{flex:1;min-width:0;background:none;border:none;outline:none;color:var(--tx);font-family:inherit;font-size:14px;font-weight:500;padding:11px 6px;}
+.srch-inp::placeholder{color:var(--mt2);font-weight:400;}
+.srch-clr{padding:0 10px;color:var(--mt);background:none;border:none;cursor:pointer;display:flex;align-items:center;opacity:0;pointer-events:none;transition:all .2s;font-size:16px;}
+.srch-clr.v{opacity:1;pointer-events:auto;}
+.srch-clr:hover{color:var(--red);}
+.icon-btn{width:38px;height:38px;border-radius:10px;background:var(--surf2);border:1px solid var(--bd2);color:var(--mt);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;font-size:16px;}
+.icon-btn:hover{background:var(--surf3);color:var(--tx);}
+.icon-btn.on{background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.35);color:var(--gold);}
+/* 検索結果カウント */
+.search-result-count{padding:6px 14px;font-size:11px;color:var(--mt);background:rgba(245,200,66,.05);border-bottom:1px solid rgba(245,200,66,.1);}
+.search-result-count strong{color:var(--gold);font-weight:800;}
+/* フィルターバー */
+.filter-bar{display:flex;align-items:center;gap:6px;background:rgba(245,200,66,.06);border-bottom:1px solid rgba(245,200,66,.15);padding:6px 14px;}
+.filter-txt{flex:1;font-size:11px;font-weight:700;color:var(--gold2);}
+.filter-clr{display:flex;align-items:center;gap:3px;background:none;border:1px solid rgba(255,255,255,.08);cursor:pointer;color:var(--mt);font-family:inherit;font-size:11px;padding:3px 7px;border-radius:5px;}
+.filter-clr:hover{color:var(--tx);}
+/* コンテンツ */
+.cnt{flex:1;overflow-y:auto;padding:8px 12px 84px;}
+.cnt::-webkit-scrollbar{width:3px;}
+.cnt::-webkit-scrollbar-thumb{background:rgba(245,200,66,.17);border-radius:2px;}
+/* セクション */
+.sh{display:flex;align-items:center;gap:7px;padding:9px 2px 5px;}
+.sh-dot{width:8px;height:8px;border-radius:50%;}
+.sh-name{font-size:11px;font-weight:700;flex:1;}
+.sh-cnt{font-size:10px;color:var(--mt);background:rgba(255,255,255,.05);border-radius:4px;padding:1px 5px;font-weight:700;}
+.cup-head{display:flex;align-items:center;gap:6px;padding:10px 2px 5px;}
+.cup-ico{font-size:14px;}
+.cup-name{font-size:11px;font-weight:800;color:var(--mt);}
+/* 道カード */
+.rc{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:5px;cursor:pointer;overflow:hidden;transition:transform .15s,border-color .2s,box-shadow .2s;}
+.rc:hover{transform:translateY(-1px);border-color:var(--bd2);box-shadow:0 3px 12px rgba(0,0,0,.22);}
+.rc:active{transform:scale(.985);}
+.rc-body{display:flex;align-items:center;gap:8px;padding:9px 11px;}
+.rc-fdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.rc-chips{display:flex;align-items:center;gap:5px;flex:1;min-width:0;}
+.chip{border-radius:6px;padding:3px 8px;font-size:11px;font-weight:700;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;}
+.rc-arr{color:var(--mt2);flex-shrink:0;font-size:11px;}
+.rc-r{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.mdot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 5px var(--gold);}
+.stic{color:var(--gold);font-size:13px;}
+.rc-prev{padding:0 11px 8px 26px;font-size:11px;color:var(--mt);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* 通常コースカード */
+.nc{background:var(--surf);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:5px;cursor:pointer;transition:transform .15s,border-color .2s;}
+.nc:hover{transform:translateY(-1px);border-color:var(--bd2);}
+.nc:active{transform:scale(.985);}
+.nc-body{display:flex;align-items:center;gap:9px;padding:9px 11px;}
+.nc-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.nc-info{flex:1;min-width:0;}
+.nc-name{font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nc-cup{font-size:10px;color:var(--mt);margin-top:1px;}
+.nc-r{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+/* お気に入りカード */
+.fav-card{background:var(--surf);border:1px solid rgba(245,200,66,.22);border-radius:var(--r);margin-bottom:5px;cursor:pointer;overflow:hidden;transition:transform .15s,border-color .2s;}
+.fav-card:hover{transform:translateY(-1px);border-color:rgba(245,200,66,.38);}
+/* 詳細ビュー */
+.dh{display:flex;align-items:center;gap:9px;padding:10px 13px 9px;border-bottom:1px solid var(--bd);background:var(--bg);position:sticky;top:0;z-index:50;}
+.bk{width:32px;height:32px;border-radius:8px;background:var(--surf2);border:1px solid var(--bd);color:var(--tx);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .2s;}
+.bk:hover{background:var(--surf3);}
+.dt-ta{flex:1;min-width:0;}
+.dt-ti{font-size:13px;font-weight:800;line-height:1.25;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.dt-su{font-size:9px;color:var(--mt);margin-top:2px;letter-spacing:.3px;text-transform:uppercase;}
+.stb{width:32px;height:32px;border-radius:8px;background:none;border:1px solid var(--bd);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--mt);transition:all .2s;flex-shrink:0;font-size:16px;}
+.stb:hover{border-color:var(--bd2);color:var(--tx);}
+.stb.on{background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.3);color:var(--gold);}
+.mw{padding:12px 13px;}
+.ml{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--mt);text-transform:uppercase;margin-bottom:6px;}
+.mta{width:100%;min-height:128px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:10px 12px;color:var(--tx);font-family:inherit;font-size:13px;line-height:1.7;resize:vertical;outline:none;transition:all .2s;}
+.mta:focus{border-color:rgba(245,200,66,.38);background:rgba(245,200,66,.03);box-shadow:0 0 0 3px rgba(245,200,66,.06);}
+.mta::placeholder{color:var(--mt2);}
+.sv-row{display:flex;justify-content:flex-end;margin-top:4px;height:14px;}
+.sv{font-size:10px;font-weight:700;transition:color .3s;}
+.sv.saving{color:var(--gold);}
+.sv.saved{color:var(--green);}
+.sv.idle{color:transparent;}
+.rw{padding:0 13px 13px;}
+.rw-t{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--mt);text-transform:uppercase;margin-bottom:6px;}
+.rchips{display:flex;flex-wrap:wrap;gap:5px;}
+.rchip{display:flex;align-items:center;gap:5px;background:var(--surf2);border:1px solid var(--bd);border-radius:7px;padding:5px 9px;font-family:inherit;font-size:11px;font-weight:700;color:var(--mt);cursor:pointer;transition:all .15s;}
+.rchip:hover{background:rgba(245,200,66,.07);border-color:rgba(245,200,66,.25);color:var(--gold2);}
+.rchip-d{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+/* モーダル */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;display:flex;align-items:flex-end;justify-content:center;}
+.modal{width:100%;max-width:430px;background:var(--surf);border-radius:18px 18px 0 0;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid var(--bd);}
+.modal-title{font-size:14px;font-weight:800;}
+.modal-close{width:28px;height:28px;border-radius:7px;background:var(--surf2);border:none;color:var(--mt);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .2s;}
+.modal-close:hover{background:var(--surf3);color:var(--tx);}
+.modal-body{overflow-y:auto;padding:10px 12px 16px;flex:1;}
+.modal-body::-webkit-scrollbar{width:3px;}
+.modal-body::-webkit-scrollbar-thumb{background:rgba(245,200,66,.15);border-radius:2px;}
+/* 終点グリッド */
+.dest-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.dest-item{display:flex;align-items:center;gap:7px;background:var(--surf2);border:1px solid var(--bd);border-radius:var(--r2);padding:8px 9px;cursor:pointer;transition:all .15s;}
+.dest-item:hover{border-color:var(--bd2);}
+.dest-item.on{background:rgba(245,200,66,.09);border-color:rgba(245,200,66,.38);}
+.dest-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dest-info{flex:1;min-width:0;}
+.dest-name{font-size:11px;font-weight:700;color:var(--mt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dest-item.on .dest-name{color:var(--gold2);}
+.dest-sub{font-size:9px;color:var(--mt2);margin-top:1px;}
+.dest-cnt{font-size:10px;color:var(--mt2);flex-shrink:0;font-weight:700;}
+/* ソートリスト */
+.sort-list{display:flex;flex-direction:column;gap:6px;}
+.sort-item{display:flex;align-items:center;gap:10px;background:var(--surf2);border:1px solid var(--bd);border-radius:var(--r2);padding:11px 13px;cursor:pointer;transition:all .15s;}
+.sort-item:hover{border-color:var(--bd2);}
+.sort-item.on{background:rgba(245,200,66,.09);border-color:rgba(245,200,66,.35);}
+.sort-ico{font-size:18px;flex-shrink:0;}
+.sort-lbl{flex:1;}
+.sort-name{font-size:13px;font-weight:700;color:var(--mt);}
+.sort-item.on .sort-name{color:var(--gold2);}
+.sort-desc{font-size:10px;color:var(--mt2);margin-top:2px;}
+.sort-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--bd2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.sort-item.on .sort-radio{background:var(--gold);border-color:var(--gold);color:#0C0F14;}
+/* ボトムナビ */
+.bn{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,15,20,.97);border-top:1px solid var(--bd);display:flex;padding:7px 0 env(safe-area-inset-bottom,7px);z-index:200;}
+.bn-b{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;background:none;border:none;cursor:pointer;font-family:inherit;font-size:10px;font-weight:700;color:var(--mt);transition:color .2s;}
+.bn-b:hover{color:var(--tx);}
+.bn-b.on{color:var(--gold);}
+/* empty */
+.empty{text-align:center;padding:48px 20px;color:var(--mt);}
+.empty-ic{font-size:36px;margin-bottom:10px;}
+.empty-tx{font-size:13px;}
+/* rainbow */
+.rb-bd{border-color:rgba(232,121,249,.3)!important;}
+.rb-tx{background:linear-gradient(90deg,#F87171,#FBBF24,#86EFAC,#60A5FA,#E879F9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ===== 正式名称 =====
+const NAME = {
+  "DKうちゅう":"DKうちゅうセンター","DKスノー":"DKスノーマウンテン",
+  "おばけ":"おばけシネマ","どんぐり":"どんぐりツリーハウス",
+  "はてな":"ハテナしんでん","ぷくぷく":"プクプクフォールズ",
+  "ほねほね":"ホネホネツイスター","ホネホネ":"ホネホネツイスター",
+  "アイス":"アイスビルディング","キノピオファクトリー":"キノピオファクトリー",
+  "キラーシップ":"キラーシップ","クッパキャッスル":"クッパキャッスル",
+  "サンサン":"サンサンさばく","シュポポ":"シュポポコースター",
+  "ショーニュー":"ショーニューロード","ソルティー":"ソルティータウン",
+  "チョコマウンテン":"チョコマウンテン","ディノディノ":"ディノディノジャングル",
+  "トロフィー":"トロフィーシティ","ノコノコ":"ノコノコビーチ",
+  "ピーチスタジアム":"ピーチスタジアム","ピーチビーチ":"ピーチビーチ",
+  "ヘイホーカーニバル":"ヘイホーカーニバル","マリオサーキット":"マリオサーキット",
+  "マリオブラザーズサーキット":"マリオブラザーズサーキット",
+  "モーモー":"モーモーカントリー","リバーサイド":"リバーサイドサファリ",
+  "レインボー":"レインボーロード","ロゼ天":"ロゼッタてんもんだい",
+  "ワリオシップ":"ワリオシップ","ワリオスタジアム":"ワリオスタジアム",
+};
+const cn = k => NAME[k] || k;
+
+// ===== カップ =====
+const CUPS = [
+  {id:"kinoko", icon:"🍄",name:"キノコカップ",  courses:["マリオブラザーズサーキット","トロフィー","シュポポ","DKうちゅう"]},
+  {id:"flower", icon:"🌸",name:"フラワーカップ", courses:["サンサン","ヘイホーカーニバル","ワリオスタジアム","キラーシップ"]},
+  {id:"star",   icon:"⭐",name:"スターカップ",   courses:["DKスノー","ロゼ天","アイス","ワリオシップ"]},
+  {id:"koura",  icon:"🐢",name:"こうらカップ",   courses:["ノコノコ","リバーサイド","トロフィー","ピーチスタジアム"]},
+  {id:"banana", icon:"🍌",name:"バナナカップ",   courses:["ピーチビーチ","ソルティー","ディノディノ","はてな"]},
+  {id:"konoha", icon:"🍃",name:"このはカップ",   courses:["ぷくぷく","ショーニュー","おばけ","ほねほね"]},
+  {id:"thunder",icon:"⚡",name:"サンダーカップ", courses:["モーモー","チョコマウンテン","キノピオファクトリー","クッパキャッスル"]},
+  {id:"special",icon:"🌈",name:"スペシャルカップ",courses:["どんぐり","マリオサーキット","ピーチスタジアム","レインボー"]},
+];
+const CUP_ORDER = (() => { const s=new Set(),r=[]; CUPS.forEach(c=>c.courses.forEach(x=>{if(!s.has(x)){s.add(x);r.push(x);}})); return r; })();
+const AIUEO_ORDER = [...CUP_ORDER].sort((a,b)=>cn(a).localeCompare(cn(b),'ja'));
+const getCup = c => CUPS.find(cup=>cup.courses.includes(c));
+
+// ===== 色 =====
+const CC = {
+  "DKうちゅう":"#8B5CF6","DKスノー":"#60C8F5","おばけ":"#A78BFA",
+  "どんぐり":"#65A30D","はてな":"#FACC15","ぷくぷく":"#38BDF8",
+  "ほねほね":"#CBD5E1","ホネホネ":"#CBD5E1","アイス":"#67E8F9",
+  "キノピオファクトリー":"#94A3B8","キラーシップ":"#64748B","クッパキャッスル":"#F97316",
+  "サンサン":"#FB923C","シュポポ":"#60A5FA","ショーニュー":"#22D3EE",
+  "ソルティー":"#2DD4BF","チョコマウンテン":"#A8855A","ディノディノ":"#4ADE80",
+  "トロフィー":"#FDE047","ノコノコ":"#F87171","ピーチスタジアム":"#F9A8D4",
+  "ピーチビーチ":"#FDBA74","ヘイホーカーニバル":"#FCD34D","マリオサーキット":"#EF4444",
+  "マリオブラザーズサーキット":"#DC2626","モーモー":"#86EFAC","リバーサイド":"#4ADE80",
+  "レインボー":"#E879F9","ロゼ天":"#F472B6","ワリオシップ":"#FEF08A","ワリオスタジアム":"#FCD34D",
+};
+
+// ===== 道データ 202本 =====
+const ROADS = [
+  {f:"シュポポ",t:"DKうちゅう"},{f:"トロフィー",t:"DKうちゅう"},{f:"ノコノコ",t:"DKうちゅう"},
+  {f:"アイス",t:"DKスノー"},{f:"ショーニュー",t:"DKスノー"},{f:"ソルティー",t:"DKスノー"},
+  {f:"ぷくぷく",t:"DKスノー"},{f:"モーモー",t:"DKスノー"},{f:"ロゼ天",t:"DKスノー"},{f:"ワリオシップ",t:"DKスノー"},
+  {f:"DKスノー",t:"アイス"},{f:"ショーニュー",t:"アイス"},{f:"ロゼ天",t:"アイス"},{f:"ワリオシップ",t:"アイス"},
+  {f:"ショーニュー",t:"おばけ"},{f:"どんぐり",t:"おばけ"},{f:"ホネホネ",t:"おばけ"},{f:"マリオサーキット",t:"おばけ"},{f:"ロゼ天",t:"おばけ"},
+  {f:"キラーシップ",t:"キノピオファクトリー"},{f:"クッパキャッスル",t:"キノピオファクトリー"},{f:"ショーニュー",t:"キノピオファクトリー"},
+  {f:"チョコマウンテン",t:"キノピオファクトリー"},{f:"どんぐり",t:"キノピオファクトリー"},{f:"ピーチスタジアム",t:"キノピオファクトリー"},
+  {f:"ほねほね",t:"キノピオファクトリー"},{f:"マリオサーキット",t:"キノピオファクトリー"},{f:"マリオブラザーズサーキット",t:"キノピオファクトリー"},
+  {f:"モーモー",t:"キノピオファクトリー"},{f:"ワリオスタジアム",t:"キノピオファクトリー"},
+  {f:"キノピオファクトリー",t:"キラーシップ"},{f:"クッパキャッスル",t:"キラーシップ"},{f:"ヘイホーカーニバル",t:"キラーシップ"},
+  {f:"ほねほね",t:"キラーシップ"},{f:"ワリオスタジアム",t:"キラーシップ"},
+  {f:"キノピオファクトリー",t:"クッパキャッスル"},{f:"キラーシップ",t:"クッパキャッスル"},{f:"チョコマウンテン",t:"クッパキャッスル"},
+  {f:"ほねほね",t:"クッパキャッスル"},{f:"マリオサーキット",t:"クッパキャッスル"},{f:"ワリオスタジアム",t:"クッパキャッスル"},
+  {f:"DKうちゅう",t:"サンサン"},{f:"シュポポ",t:"サンサン"},{f:"トロフィー",t:"サンサン"},{f:"ヘイホーカーニバル",t:"サンサン"},{f:"マリオブラザーズサーキット",t:"サンサン"},
+  {f:"DKうちゅう",t:"シュポポ"},{f:"サンサン",t:"シュポポ"},{f:"チョコマウンテン",t:"シュポポ"},{f:"トロフィー",t:"シュポポ"},{f:"マリオブラザーズサーキット",t:"シュポポ"},
+  {f:"DKスノー",t:"ショーニュー"},{f:"アイス",t:"ショーニュー"},{f:"おばけ",t:"ショーニュー"},{f:"キノピオファクトリー",t:"ショーニュー"},
+  {f:"どんぐり",t:"ショーニュー"},{f:"ぷくぷく",t:"ショーニュー"},{f:"マリオサーキット",t:"ショーニュー"},{f:"モーモー",t:"ショーニュー"},{f:"ロゼ天",t:"ショーニュー"},
+  {f:"DKスノー",t:"ソルティー"},{f:"アイス",t:"ソルティー"},{f:"ディノディノ",t:"ソルティー"},{f:"はてな",t:"ソルティー"},
+  {f:"ピーチビーチ",t:"ソルティー"},{f:"ぷくぷく",t:"ソルティー"},{f:"リバーサイド",t:"ソルティー"},{f:"ワリオシップ",t:"ソルティー"},
+  {f:"キノピオファクトリー",t:"チョコマウンテン"},{f:"クッパキャッスル",t:"チョコマウンテン"},{f:"シュポポ",t:"チョコマウンテン"},
+  {f:"トロフィー",t:"チョコマウンテン"},{f:"ピーチスタジアム",t:"チョコマウンテン"},{f:"ぷくぷく",t:"チョコマウンテン"},
+  {f:"ヘイホーカーニバル",t:"チョコマウンテン"},{f:"マリオブラザーズサーキット",t:"チョコマウンテン"},{f:"モーモー",t:"チョコマウンテン"},{f:"ワリオスタジアム",t:"チョコマウンテン"},
+  {f:"ソルティー",t:"ディノディノ"},{f:"ノコノコ",t:"ディノディノ"},{f:"はてな",t:"ディノディノ"},{f:"ピーチビーチ",t:"ディノディノ"},{f:"リバーサイド",t:"ディノディノ"},
+  {f:"DKうちゅう",t:"トロフィー"},{f:"サンサン",t:"トロフィー"},{f:"シュポポ",t:"トロフィー"},{f:"チョコマウンテン",t:"トロフィー"},
+  {f:"ノコノコ",t:"トロフィー"},{f:"ピーチスタジアム",t:"トロフィー"},{f:"マリオブラザーズサーキット",t:"トロフィー"},
+  {f:"モーモー",t:"トロフィー"},{f:"リバーサイド",t:"トロフィー"},{f:"ワリオスタジアム",t:"トロフィー"},
+  {f:"おばけ",t:"どんぐり"},{f:"キノピオファクトリー",t:"どんぐり"},{f:"ショーニュー",t:"どんぐり"},{f:"ほねほね",t:"どんぐり"},{f:"マリオサーキット",t:"どんぐり"},
+  {f:"DKうちゅう",t:"ノコノコ"},{f:"サンサン",t:"ノコノコ"},{f:"シュポポ",t:"ノコノコ"},{f:"ディノディノ",t:"ノコノコ"},
+  {f:"トロフィー",t:"ノコノコ"},{f:"はてな",t:"ノコノコ"},{f:"ピーチスタジアム",t:"ノコノコ"},{f:"リバーサイド",t:"ノコノコ"},
+  {f:"ソルティー",t:"はてな"},{f:"ディノディノ",t:"はてな"},{f:"ピーチビーチ",t:"はてな"},{f:"リバーサイド",t:"はてな"},
+  {f:"DKうちゅう",t:"ピーチスタジアム"},{f:"キノピオファクトリー",t:"ピーチスタジアム"},{f:"チョコマウンテン",t:"ピーチスタジアム"},
+  {f:"トロフィー",t:"ピーチスタジアム"},{f:"ノコノコ",t:"ピーチスタジアム"},{f:"ぷくぷく",t:"ピーチスタジアム"},
+  {f:"マリオサーキット",t:"ピーチスタジアム"},{f:"モーモー",t:"ピーチスタジアム"},{f:"リバーサイド",t:"ピーチスタジアム"},
+  {f:"ソルティー",t:"ピーチビーチ"},{f:"ディノディノ",t:"ピーチビーチ"},{f:"はてな",t:"ピーチビーチ"},{f:"リバーサイド",t:"ピーチビーチ"},{f:"ワリオシップ",t:"ピーチビーチ"},
+  {f:"DKスノー",t:"ぷくぷく"},{f:"アイス",t:"ぷくぷく"},{f:"ショーニュー",t:"ぷくぷく"},{f:"ソルティー",t:"ぷくぷく"},
+  {f:"チョコマウンテン",t:"ぷくぷく"},{f:"ピーチスタジアム",t:"ぷくぷく"},{f:"モーモー",t:"ぷくぷく"},
+  {f:"リバーサイド",t:"ぷくぷく"},{f:"ロゼ天",t:"ぷくぷく"},{f:"ワリオシップ",t:"ぷくぷく"},
+  {f:"キラーシップ",t:"ヘイホーカーニバル"},{f:"サンサン",t:"ヘイホーカーニバル"},{f:"チョコマウンテン",t:"ヘイホーカーニバル"},
+  {f:"マリオブラザーズサーキット",t:"ヘイホーカーニバル"},{f:"ワリオスタジアム",t:"ヘイホーカーニバル"},
+  {f:"おばけ",t:"ほねほね"},{f:"キノピオファクトリー",t:"ほねほね"},{f:"キラーシップ",t:"ほねほね"},{f:"クッパキャッスル",t:"ほねほね"},
+  {f:"どんぐり",t:"ほねほね"},{f:"マリオサーキット",t:"ほねほね"},{f:"モーモー",t:"ほねほね"},{f:"ワリオスタジアム",t:"ほねほね"},
+  {f:"おばけ",t:"マリオサーキット"},{f:"キノピオファクトリー",t:"マリオサーキット"},{f:"クッパキャッスル",t:"マリオサーキット"},
+  {f:"ショーニュー",t:"マリオサーキット"},{f:"どんぐり",t:"マリオサーキット"},{f:"ほねほね",t:"マリオサーキット"},
+  {f:"モーモー",t:"マリオサーキット"},{f:"ロゼ天",t:"マリオサーキット"},
+  {f:"DKうちゅう",t:"マリオブラザーズサーキット"},{f:"キノピオファクトリー",t:"マリオブラザーズサーキット"},
+  {f:"サンサン",t:"マリオブラザーズサーキット"},{f:"シュポポ",t:"マリオブラザーズサーキット"},{f:"チョコマウンテン",t:"マリオブラザーズサーキット"},
+  {f:"トロフィー",t:"マリオブラザーズサーキット"},{f:"ヘイホーカーニバル",t:"マリオブラザーズサーキット"},{f:"ワリオスタジアム",t:"マリオブラザーズサーキット"},
+  {f:"DKスノー",t:"モーモー"},{f:"キノピオファクトリー",t:"モーモー"},{f:"ショーニュー",t:"モーモー"},{f:"チョコマウンテン",t:"モーモー"},
+  {f:"トロフィー",t:"モーモー"},{f:"ピーチスタジアム",t:"モーモー"},{f:"ぷくぷく",t:"モーモー"},{f:"ほねほね",t:"モーモー"},{f:"マリオサーキット",t:"モーモー"},
+  {f:"ソルティー",t:"リバーサイド"},{f:"ディノディノ",t:"リバーサイド"},{f:"トロフィー",t:"リバーサイド"},{f:"ノコノコ",t:"リバーサイド"},
+  {f:"はてな",t:"リバーサイド"},{f:"ピーチスタジアム",t:"リバーサイド"},{f:"ピーチビーチ",t:"リバーサイド"},{f:"ぷくぷく",t:"リバーサイド"},
+  {f:"ピーチスタジアム",t:"レインボー"},
+  {f:"DKスノー",t:"ロゼ天"},{f:"アイス",t:"ロゼ天"},{f:"おばけ",t:"ロゼ天"},{f:"ショーニュー",t:"ロゼ天"},
+  {f:"ぷくぷく",t:"ロゼ天"},{f:"マリオサーキット",t:"ロゼ天"},{f:"ワリオシップ",t:"ロゼ天"},
+  {f:"DKスノー",t:"ワリオシップ"},{f:"アイス",t:"ワリオシップ"},{f:"ソルティー",t:"ワリオシップ"},
+  {f:"ピーチビーチ",t:"ワリオシップ"},{f:"ぷくぷく",t:"ワリオシップ"},{f:"ロゼ天",t:"ワリオシップ"},
+  {f:"キノピオファクトリー",t:"ワリオスタジアム"},{f:"キラーシップ",t:"ワリオスタジアム"},{f:"クッパキャッスル",t:"ワリオスタジアム"},
+  {f:"チョコマウンテン",t:"ワリオスタジアム"},{f:"トロフィー",t:"ワリオスタジアム"},{f:"ヘイホーカーニバル",t:"ワリオスタジアム"},
+  {f:"ホネホネ",t:"ワリオスタジアム"},{f:"マリオブラザーズサーキット",t:"ワリオスタジアム"},
+];
+
+// Storage（localStorage使用）
+const STORAGE_KEY = "mkw-memo-v3";
+function loadData() {
+  try { const s=localStorage.getItem(STORAGE_KEY); return s?JSON.parse(s):{}; } catch{return {};}
+}
+function saveData(d) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch{}
+}
+
+const rk=(f,t)=>`r:${f}>${t}`;
+const nk=c=>`n:${c}`;
+const sk=id=>`s:${id}`;
+
+// ===== NormalCard =====
+function NormalCard({course, data, onOpen, highlight}) {
+  const key=nk(course), has=!!(data[key]?.trim()), star=!!data[sk(key)], isRb=course==="レインボー", cup=getCup(course);
+  const courseName = cn(course);
+  const displayName = highlight && courseName.includes(highlight) 
+    ? courseName.split(highlight).reduce((acc, part, i) => 
+        i === 0 ? [part] : [...acc, <mark key={i} style={{background:'var(--gold)',color:'var(--bg)',padding:'1px 2px',borderRadius:2}}>{highlight}</mark>, part], [])
+    : courseName;
+  return (
+    <div className={`nc${isRb?" rb-bd":""}`} style={{borderColor:(CC[course]||"#888")+"30"}} onClick={()=>onOpen(course)}>
+      <div className="nc-body">
+        <div className="nc-icon" style={{background:(CC[course]||"#888")+"22",color:CC[course]||"var(--tx)"}}>{cup?.icon||"🏁"}</div>
+        <div className="nc-info">
+          <div className={`nc-name${isRb?" rb-tx":""}`} style={isRb?{}:{color:CC[course]||"var(--tx)"}}>{displayName}</div>
+          {cup&&<div className="nc-cup">{cup.name}</div>}
+        </div>
+        <div className="nc-r">{star&&<span className="stic">★</span>}{has&&<span className="mdot"/>}</div>
+      </div>
+    </div>
+  );
+}
+
+// ===== RoadCard =====
+function RoadCard({f, t, data, onOpen, isFav}) {
+  const key=rk(f,t), has=!!(data[key]?.trim()), star=!!data[sk(key)], isRb=t==="レインボー";
+  return (
+    <div className={`${isFav?"fav-card":"rc"}${isRb?" rb-bd":""}`} onClick={()=>onOpen(f,t)}>
+      <div className="rc-body">
+        <span className="rc-fdot" style={{background:CC[f]||"#888",boxShadow:`0 0 4px ${CC[f]||"#888"}88`}}/>
+        <div className="rc-chips">
+          <div className="chip" style={{color:CC[f]||"var(--tx)",borderColor:(CC[f]||"#888")+"28"}}>{cn(f)}</div>
+          <span className="rc-arr">→</span>
+          <div className="chip" style={{color:CC[t]||"var(--tx)",borderColor:(CC[t]||"#888")+"28"}}>{cn(t)}</div>
+        </div>
+        <div className="rc-r">{star&&<span className="stic">★</span>}{has&&<span className="mdot"/>}</div>
+      </div>
+      {has&&<div className="rc-prev">{data[key]}</div>}
+    </div>
+  );
+}
+
+// ===== Main App =====
+function App() {
+  const [tab, setTab]         = useState("roads");
+  const [data, setData]       = useState(() => loadData());
+  const [detail, setDetail]   = useState(null);
+  const [q, setQ]             = useState("");
+  const [destFilter, setDestF]= useState(null);
+  const [sortMode, setSort]   = useState("cup");
+  const [showDest, setShowDest] = useState(false);
+  const [showSort, setShowSort] = useState(false);
+  const [svSt, setSvSt]       = useState("idle");
+  const svTmr = useRef(null);
+  const inpRef = useRef(null);
+
+  const upMemo = useCallback((key, val) => {
+    setData(prev => {
+      const nx = {...prev, [key]: val};
+      if (svTmr.current) clearTimeout(svTmr.current);
+      setSvSt("saving");
+      svTmr.current = setTimeout(() => { saveData(nx); setSvSt("saved"); setTimeout(()=>setSvSt("idle"),1400); }, 600);
+      return nx;
+    });
+  }, []);
+
+  const togStar = useCallback((key) => {
+    setData(prev => { const nx={...prev,[sk(key)]:!prev[sk(key)]}; saveData(nx); return nx; });
+  }, []);
+
+  const memoCnt = Object.entries(data).filter(([k,v])=>!k.startsWith("s:")&&v?.trim()).length;
+  const pct = Math.round(memoCnt/232*100);
+
+  const filtered = ROADS.filter(r => (!destFilter||r.t===destFilter) && (!q||cn(r.f).includes(q)||cn(r.t).includes(q)));
+  const byDest = {};
+  filtered.forEach(r=>{ (byDest[r.t]=byDest[r.t]||[]).push(r.f); });
+  const sortedDests = Object.keys(byDest).sort((a,b)=>cn(a).localeCompare(cn(b),'ja'));
+
+  const courseOrder = sortMode==="cup" ? CUP_ORDER : AIUEO_ORDER;
+  const filtNorm = courseOrder.filter(c=>!q||cn(c).includes(q));
+  const favRoads = ROADS.filter(r=>data[sk(rk(r.f,r.t))]);
+
+  const switchTab = t => { setTab(t); setDestF(null); setQ(""); setTimeout(()=>inpRef.current?.focus(),100); };
+
+  // 道詳細
+  if (detail?.type==="road") {
+    const {f,t}=detail, key=rk(f,t), memo=data[key]||"", starred=!!data[sk(key)];
+    const othFr=ROADS.filter(r=>r.t===t&&r.f!==f).map(r=>r.f).sort((a,b)=>cn(a).localeCompare(cn(b),'ja'));
+    const othTo=ROADS.filter(r=>r.f===f&&r.t!==t).map(r=>r.t).sort((a,b)=>cn(a).localeCompare(cn(b),'ja'));
+    return (
+      <div className="shell">
+        <div className="dh">
+          <button className="bk" onClick={()=>setDetail(null)}>←</button>
+          <div className="dt-ta">
+            <div className="dt-ti">
+              <span style={{color:CC[f]||"#aaa"}}>{cn(f)}</span>
+              <span style={{color:"var(--mt2)",margin:"0 3px"}}>→</span>
+              <span style={{color:CC[t]||"#aaa"}}>{cn(t)}</span>
+            </div>
+            <div className="dt-su">道メモ</div>
+          </div>
+          <button className={`stb${starred?" on":""}`} onClick={()=>togStar(key)}>{starred?"★":"☆"}</button>
+        </div>
+        <div className="cnt">
+          <div className="mw">
+            <div className="ml">メモ</div>
+            <textarea className="mta" placeholder={`${cn(f)} → ${cn(t)} の道についてメモ…`}
+              value={memo} onChange={e=>upMemo(key,e.target.value)} rows={6} autoFocus/>
+            <div className="sv-row"><span className={`sv ${svSt}`}>{svSt==="saving"?"💾 保存中…":svSt==="saved"?"✅ 保存済み":""}</span></div>
+          </div>
+          {othFr.length>0&&<div className="rw"><div className="rw-t">↳ {cn(t)} に向かう他の道</div><div className="rchips">{othFr.map(c=><button key={c} className="rchip" onClick={()=>setDetail({type:"road",f:c,t})}><span className="rchip-d" style={{background:CC[c]||"#888"}}/>{cn(c)}</button>)}</div></div>}
+          {othTo.length>0&&<div className="rw"><div className="rw-t">↗ {cn(f)} から出る他の道</div><div className="rchips">{othTo.map(c=><button key={c} className="rchip" onClick={()=>setDetail({type:"road",f,t:c})}><span className="rchip-d" style={{background:CC[c]||"#888"}}/>{cn(c)}</button>)}</div></div>}
+        </div>
+      </div>
+    );
+  }
+
+  // 通常コース詳細
+  if (detail?.type==="normal") {
+    const {course}=detail, key=nk(course), memo=data[key]||"", starred=!!data[sk(key)], isRb=course==="レインボー", cup=getCup(course);
+    return (
+      <div className="shell">
+        <div className="dh">
+          <button className="bk" onClick={()=>setDetail(null)}>←</button>
+          <div className="dt-ta">
+            <div className={`dt-ti${isRb?" rb-tx":""}`} style={isRb?{}:{color:CC[course]||"var(--tx)"}}>{cup?.icon} {cn(course)}</div>
+            <div className="dt-su">{cup?.name} — メモ</div>
+          </div>
+          <button className={`stb${starred?" on":""}`} onClick={()=>togStar(key)}>{starred?"★":"☆"}</button>
+        </div>
+        <div className="cnt">
+          <div className="mw">
+            <div className="ml">メモ</div>
+            <textarea className="mta" placeholder={`${cn(course)} の攻略メモ…`}
+              value={memo} onChange={e=>upMemo(key,e.target.value)} rows={8} autoFocus/>
+            <div className="sv-row"><span className={`sv ${svSt}`}>{svSt==="saving"?"💾 保存中…":svSt==="saved"?"✅ 保存済み":""}</span></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="shell">
+      {/* ヘッダー */}
+      <div className="hdr">
+        <div className="hdr-top">
+          <div className="logo-mark">🏎️</div>
+          <div className="logo-words">
+            <div className="logo-t">MKWorld 道中メモ</div>
+            <div className="logo-s">Mario Kart World</div>
+          </div>
+          <div className="hdr-badge">{memoCnt}/232 <span style={{color:"var(--mt)",marginLeft:2}}>記録</span></div>
+        </div>
+        <div className="prog-row">
+          <div className="prog-track"><div className="prog-fill" style={{width:`${pct}%`}}/></div>
+          <div className="prog-pct">{pct}%</div>
+        </div>
+        <div className="tabs">
+          <button className={`tab-btn${tab==="roads"?" on":""}`} onClick={()=>switchTab("roads")}>🛣 道<span className="tab-n">202</span></button>
+          <button className={`tab-btn${tab==="normal"?" on":""}`} onClick={()=>switchTab("normal")}>🏁 通常コース<span className="tab-n">30</span></button>
+          <button className={`tab-btn${tab==="favs"?" on":""}`} onClick={()=>switchTab("favs")}>★ お気に入り<span className="tab-n">{favRoads.length}</span></button>
+        </div>
+        <div className="toolbar">
+          <div className="srch-bar">
+            <div className="srch-ic">🔍</div>
+            <input ref={inpRef} className="srch-inp" placeholder={
+              tab==="roads"?"コース名で検索":
+              tab==="normal"?"コース名で検索":
+              "お気に入りから検索…"
+            } value={q} onChange={e=>setQ(e.target.value)} autoFocus/>
+            <button className={`srch-clr${q?" v":""}`} onClick={()=>{setQ("");inpRef.current?.focus();}}>✕</button>
+          </div>
+          {tab==="roads"&&<button className={`icon-btn${destFilter?" on":""}`} onClick={()=>setShowDest(true)} title="終点で絞込">▼</button>}
+          {tab==="normal"&&<button className="icon-btn" onClick={()=>setShowSort(true)} title="並び替え">≡</button>}
+        </div>
+        {q&&tab==="roads"&&<div className="search-result-count">検索結果: <strong>{filtered.length}本の道</strong>{destFilter&&` (終点: ${cn(destFilter)})`}</div>}
+        {q&&tab==="normal"&&<div className="search-result-count">検索結果: <strong>{filtNorm.length}コース</strong></div>}
+        {q&&tab==="favs"&&<div className="search-result-count">検索結果: <strong>{favRoads.filter(r=>!q||cn(r.f).includes(q)||cn(r.t).includes(q)).length}件</strong></div>}
+        {tab==="roads"&&destFilter&&(
+          <div className="filter-bar">
+            <div className="filter-txt">終点：<span style={{color:CC[destFilter]||"#aaa"}}>{cn(destFilter)}</span><span style={{color:"var(--mt)",marginLeft:5}}>（{filtered.length}本）</span></div>
+            <button className="filter-clr" onClick={()=>setDestF(null)}>✕ 解除</button>
+          </div>
+        )}
+      </div>
+
+      {/* コンテンツ */}
+      <div className="cnt">
+        {/* 道タブ */}
+        {tab==="roads"&&(filtered.length===0
+          ?<div className="empty"><div className="empty-ic">🔍</div><div className="empty-tx">{q?`「${q}」に一致する道が見つかりません`:"道を検索してください"}</div>{q&&<div style={{fontSize:11,color:"var(--mt)",marginTop:8}}>別のキーワードを試すか、終点フィルターを解除してください</div>}</div>
+          :sortedDests.map(d=>(
+            <div key={d}>
+              <div className="sh">
+                <span className="sh-dot" style={{background:CC[d]||"#888",boxShadow:`0 0 5px ${CC[d]||"#888"}55`}}/>
+                <span className="sh-name" style={{color:CC[d]||"var(--tx)"}}>→ {cn(d)}</span>
+                <span className="sh-cnt">{byDest[d].length}本</span>
+              </div>
+              {[...byDest[d]].sort((a,b)=>cn(a).localeCompare(cn(b),'ja')).map(f=>(
+                <RoadCard key={f} f={f} t={d} data={data} onOpen={(f,t)=>setDetail({type:"road",f,t})}/>
+              ))}
+            </div>
+          ))
+        )}
+
+        {/* 通常コースタブ */}
+        {tab==="normal"&&(filtNorm.length===0
+          ?<div className="empty"><div className="empty-ic">🔍</div><div className="empty-tx">「{q}」が見つかりません</div></div>
+          :sortMode==="cup"
+            ?CUPS.map(cup=>{
+                const cc=cup.courses.filter(c=>filtNorm.includes(c));
+                if(!cc.length)return null;
+                return(<div key={cup.id}><div className="cup-head"><span className="cup-ico">{cup.icon}</span><span className="cup-name">{cup.name}</span></div>{cc.map(c=><NormalCard key={c} course={c} data={data} onOpen={c=>setDetail({type:"normal",course:c})} highlight={q}/>)}</div>);
+              })
+            :filtNorm.map(c=><NormalCard key={c} course={c} data={data} onOpen={c=>setDetail({type:"normal",course:c})} highlight={q}/>)
+        )}
+
+        {/* お気に入りタブ */}
+        {tab==="favs"&&(favRoads.length===0
+          ?<div className="empty"><div className="empty-ic">⭐</div><div className="empty-tx">道にスター★を付けるとここに表示されます</div></div>
+          :(()=>{
+            const shown=favRoads.filter(r=>!q||cn(r.f).includes(q)||cn(r.t).includes(q));
+            if(!shown.length)return<div className="empty"><div className="empty-ic">🔍</div><div className="empty-tx">「{q}」のお気に入りが見つかりません</div></div>;
+            return shown.map(r=><RoadCard key={rk(r.f,r.t)} f={r.f} t={r.t} data={data} onOpen={(f,t)=>setDetail({type:"road",f,t})} isFav/>);
+          })()
+        )}
+      </div>
+
+      {/* ボトムナビ */}
+      <div className="bn">
+        <button className={`bn-b${tab==="roads"?" on":""}`} onClick={()=>switchTab("roads")}>🛣<br/>道 (202)</button>
+        <button className={`bn-b${tab==="normal"?" on":""}`} onClick={()=>switchTab("normal")}>🏁<br/>通常 (30)</button>
+        <button className={`bn-b${tab==="favs"?" on":""}`} onClick={()=>switchTab("favs")}>★<br/>お気に入り ({favRoads.length})</button>
+      </div>
+
+      {/* 終点選択モーダル */}
+      {showDest&&(
+        <div className="overlay" onClick={()=>setShowDest(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <div className="modal-hdr">
+              <div className="modal-title">終点を選んで絞込</div>
+              <button className="modal-close" onClick={()=>setShowDest(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="dest-grid">
+                {[...CUP_ORDER].sort((a,b)=>cn(a).localeCompare(cn(b),'ja')).map(c=>{
+                  const cup=getCup(c), count=ROADS.filter(r=>r.t===c).length;
+                  return(
+                    <div key={c} className={`dest-item${destFilter===c?" on":""}`}
+                      onClick={()=>{setDestF(destFilter===c?null:c);setShowDest(false);}}>
+                      <span className="dest-dot" style={{background:CC[c]||"#888"}}/>
+                      <div className="dest-info">
+                        <div className="dest-name">{cn(c)}</div>
+                        <div className="dest-sub">{cup?.icon} {cup?.name}</div>
+                      </div>
+                      <div className="dest-cnt">{count}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ソートモーダル */}
+      {showSort&&(
+        <div className="overlay" onClick={()=>setShowSort(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <div className="modal-hdr">
+              <div className="modal-title">並び替え</div>
+              <button className="modal-close" onClick={()=>setShowSort(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="sort-list">
+                {[{id:"cup",icon:"🏆",name:"カップ順",desc:"キノコ→フラワー→スター…の順"},{id:"aiueo",icon:"🔤",name:"あいうえお順",desc:"正式名称であいうえお順"}].map(s=>(
+                  <div key={s.id} className={`sort-item${sortMode===s.id?" on":""}`} onClick={()=>{setSort(s.id);setShowSort(false);}}>
+                    <div className="sort-ico">{s.icon}</div>
+                    <div className="sort-lbl"><div className="sort-name">{s.name}</div><div className="sort-desc">{s.desc}</div></div>
+                    <div className="sort-radio">{sortMode===s.id&&"✓"}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
