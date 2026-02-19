@@ -182,12 +182,47 @@ body{font-family:'Noto Sans JP','M PLUS Rounded 1c',sans-serif;background:var(--
 <script type="text/babel">
 
 const { useState, useEffect, useCallback, useRef } = React;
-const { createClient } = supabase;
 
-const supabaseClient = createClient(
+/* =============================
+   ✅ Supabase 初期化（1回だけ）
+============================= */
+const supabase = window.supabase.createClient(
   "https://awyuwywghitoapmnfkcj.supabase.co",
   "sb_publishable_wnNsWbxFMznEDaKX_GyNBg_QXffNxph"
 );
+  const USER_ID = "shared-memo";
+
+/* =============================
+   Storage
+============================= */
+
+async function loadDataFromDB() {
+  const { data, error } = await supabase
+    .from("memos")
+    .select("content")
+    .eq("id", USER_ID)
+    .maybeSingle();
+
+  if (error) {
+    console.log("load error:", error);
+    return {};
+  }
+
+  return data ? JSON.parse(data.content) : {};
+}
+
+async function saveDataToDB(d) {
+  const { error } = await supabase
+    .from("memos")
+    .upsert({
+      id: USER_ID,
+      content: JSON.stringify(d)
+    });
+
+  if (error) {
+    console.log("save error:", error);
+  }
+}
 
 
 
@@ -304,27 +339,7 @@ const ROADS = [
   {f:"ホネホネ",t:"ワリオスタジアム"},{f:"マリオブラザーズサーキット",t:"ワリオスタジアム"},
 ];
 
-// Storage（localStorage使用）
-const USER_ID = "shared-memo"; // 全端末共通
 
-async function loadData() {
-  const { data } = await window.supabase
-    .from("memos")
-    .select("content")
-    .eq("id", USER_ID)
-    .single();
-
-  return data ? JSON.parse(data.content) : {};
-}
-
-async function saveData(d) {
-  await window.supabase
-    .from("memos")
-    .upsert({
-      id: USER_ID,
-      content: JSON.stringify(d)
-    });
-}
 
 const rk=(f,t)=>`r:${f}>${t}`;
 const nk=c=>`n:${c}`;
@@ -373,21 +388,9 @@ function RoadCard({f, t, data, onOpen, isFav}) {
 
 // ===== Main App =====
 function App() {
-   useEffect(() => {
-    async function testInsert() {
-      const { data, error } = await window.supabase
-        .from("memos")
-        .insert([{ content: "テスト保存" }]);
-
-      console.log("data:", data);
-      console.log("error:", error);
-    }
-
-    testInsert();
-  }, []);
-
+   
   const [tab, setTab]         = useState("roads");
-  const [data, setData]       = useState(() => loadData());
+  const [data, setData]       = useState({});
   const [detail, setDetail]   = useState(null);
   const [q, setQ]             = useState("");
   const [destFilter, setDestF]= useState(null);
@@ -397,19 +400,29 @@ function App() {
   const [svSt, setSvSt]       = useState("idle");
   const svTmr = useRef(null);
   const inpRef = useRef(null);
+  useEffect(() => {
+  async function init() {
+    const d = await loadDataFromDB();
+    setData(d);
+  }
+  init();
+}, []);
 
   const upMemo = useCallback((key, val) => {
     setData(prev => {
       const nx = {...prev, [key]: val};
       if (svTmr.current) clearTimeout(svTmr.current);
       setSvSt("saving");
-      svTmr.current = setTimeout(() => { saveData(nx); setSvSt("saved"); setTimeout(()=>setSvSt("idle"),1400); }, 600);
+      svTmr.current = setTimeout(() => { 
+  saveDataToDB(nx); 
+  setSvSt("saved");  setTimeout(()=>setSvSt("idle"),1400); }, 600);
       return nx;
     });
   }, []);
 
   const togStar = useCallback((key) => {
-    setData(prev => { const nx={...prev,[sk(key)]:!prev[sk(key)]}; saveData(nx); return nx; });
+    setData(prev => { const nx={...prev,[sk(key)]:!prev[sk(key)]}; saveDataToDB(nx);
+ return nx; });
   }, []);
 
   const memoCnt = Object.entries(data).filter(([k,v])=>!k.startsWith("s:")&&v?.trim()).length;
@@ -424,7 +437,7 @@ function App() {
   const filtNorm = courseOrder.filter(c=>!q||cn(c).includes(q));
   const favRoads = ROADS.filter(r=>data[sk(rk(r.f,r.t))]);
 
-  const switchTab = t => { setTab(t); setDestF(null); setQ(""); setTimeout(()=>inpRef.current?.focus(),100); };
+  const switchTab = t => { setTab(t); setDestF(null); setQ(""); };
 
   // 道詳細
   if (detail?.type==="road") {
@@ -650,21 +663,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js');
 }
-</script><script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-const supabase = createClient(
-  "https://awyuwywghitoapmnfkcj.supabase.co",
-  "sb_publishable_wnNsWbxFMznEDaKX_GyNBg_QXffNxph"
-);
-
-window.supabase = supabase;
-
-console.log("🔥 Supabase connected");
-</script>
-
 </body>
 </html>
+
 
 
 
