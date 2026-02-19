@@ -179,6 +179,9 @@ body{font-family:'Noto Sans JP','M PLUS Rounded 1c',sans-serif;background:var(--
 </head>
 <body>
 <div id="root"></div>
+<script type="text/babel">
+
+const { useState, useEffect, useCallback, useRef } = React;
 const { createClient } = supabase;
 
 const supabaseClient = createClient(
@@ -659,6 +662,7 @@ console.log("🔥 Supabase connected");
 
 </body>
 </html>
+
 
 
 
