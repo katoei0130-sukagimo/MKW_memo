@@ -7,6 +7,7 @@
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@800;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -180,6 +181,14 @@ body{font-family:'Noto Sans JP','M PLUS Rounded 1c',sans-serif;background:var(--
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useCallback, useRef } = React;
+
+const { createClient } = supabase;
+
+const supabaseClient = createClient(
+  "https://awyuwywghitoapmnfkcj.supabase.co",
+  "sb_publishable_wnNsWbxFMznEDaKX_GyNBg_QXffNxph"
+);
+
 
 // ===== 正式名称 =====
 const NAME = {
@@ -485,11 +494,21 @@ function App() {
         <div className="toolbar">
           <div className="srch-bar">
             <div className="srch-ic">🔍</div>
-            <input ref={inpRef} className="srch-inp" placeholder={
-              tab==="roads"?"コース名で検索":
-              tab==="normal"?"コース名で検索":
-              "お気に入りから検索…"
-            } value={q} onChange={e=>setQ(e.target.value)} autoFocus/>
+           <input 
+  ref={inpRef}
+  className="srch-inp"
+  placeholder={
+    tab==="roads"?"コース名で検索":
+    tab==="normal"?"コース名で検索":
+    "お気に入りから検索…"
+  }
+  value={q}
+  onChange={e=>setQ(e.target.value)}
+  autoComplete="off"
+  autoCorrect="off"
+  autoCapitalize="off"
+  spellCheck="false"
+/>
             <button className={`srch-clr${q?" v":""}`} onClick={()=>{setQ("");inpRef.current?.focus();}}>✕</button>
           </div>
           {tab==="roads"&&<button className={`icon-btn${destFilter?" on":""}`} onClick={()=>setShowDest(true)} title="終点で絞込">▼</button>}
@@ -632,6 +651,7 @@ console.log("🔥 Supabase connected");
 
 </body>
 </html>
+
 
 
 
