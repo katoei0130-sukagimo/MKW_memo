@@ -189,18 +189,6 @@ const supabaseClient = createClient(
   "sb_publishable_wnNsWbxFMznEDaKX_GyNBg_QXffNxph"
 );
 
-useEffect(() => {
-  async function testInsert() {
-    const { data, error } = await supabaseClient
-      .from("memos")
-      .insert([{ content: "テスト保存" }]);
-
-    console.log("data:", data);
-    console.log("error:", error);
-  }
-
-  testInsert();
-}, []);
 
 
 // ===== 正式名称 =====
@@ -385,6 +373,19 @@ function RoadCard({f, t, data, onOpen, isFav}) {
 
 // ===== Main App =====
 function App() {
+   useEffect(() => {
+    async function testInsert() {
+      const { data, error } = await window.supabase
+        .from("memos")
+        .insert([{ content: "テスト保存" }]);
+
+      console.log("data:", data);
+      console.log("error:", error);
+    }
+
+    testInsert();
+  }, []);
+
   const [tab, setTab]         = useState("roads");
   const [data, setData]       = useState(() => loadData());
   const [detail, setDetail]   = useState(null);
@@ -664,6 +665,7 @@ console.log("🔥 Supabase connected");
 
 </body>
 </html>
+
 
 
 
