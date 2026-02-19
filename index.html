@@ -180,6 +180,7 @@ body{font-family:'Noto Sans JP','M PLUS Rounded 1c',sans-serif;background:var(--
 <body>
 <div id="root"></div>
 <script type="text/babel">
+  
 const { useState, useEffect, useCallback, useRef } = React;
 
 const { createClient } = supabase;
@@ -187,6 +188,17 @@ const { createClient } = supabase;
 const supabaseClient = createClient(
   "https://awyuwywghitoapmnfkcj.supabase.co",
   "sb_publishable_wnNsWbxFMznEDaKX_GyNBg_QXffNxph"
+  async function testInsert() {
+  const { data, error } = await supabaseClient
+    .from("memos")
+    .insert([{ content: "テスト保存" }]);
+
+  console.log("data:", data);
+  console.log("error:", error);
+}
+
+testInsert();
+
 );
 
 
@@ -651,6 +663,7 @@ console.log("🔥 Supabase connected");
 
 </body>
 </html>
+
 
 
 
