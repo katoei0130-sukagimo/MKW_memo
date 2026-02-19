@@ -189,16 +189,18 @@ const supabaseClient = createClient(
   "sb_publishable_wnNsWbxFMznEDaKX_GyNBg_QXffNxph"
 );
 
-async function testInsert() {
-  const { data, error } = await supabaseClient
-    .from("memos")
-    .insert([{ content: "テスト保存" }]);
+useEffect(() => {
+  async function testInsert() {
+    const { data, error } = await supabaseClient
+      .from("memos")
+      .insert([{ content: "テスト保存" }]);
 
-  console.log("data:", data);
-  console.log("error:", error);
-}
+    console.log("data:", data);
+    console.log("error:", error);
+  }
 
-testInsert();
+  testInsert();
+}, []);
 
 
 // ===== 正式名称 =====
@@ -662,6 +664,7 @@ console.log("🔥 Supabase connected");
 
 </body>
 </html>
+
 
 
 
