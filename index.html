@@ -295,12 +295,25 @@ const ROADS = [
 ];
 
 // Storage（localStorage使用）
-const STORAGE_KEY = "mkw-memo-v3";
-function loadData() {
-  try { const s=localStorage.getItem(STORAGE_KEY); return s?JSON.parse(s):{}; } catch{return {};}
+const USER_ID = "shared-memo"; // 全端末共通
+
+async function loadData() {
+  const { data } = await window.supabase
+    .from("memos")
+    .select("content")
+    .eq("id", USER_ID)
+    .single();
+
+  return data ? JSON.parse(data.content) : {};
 }
-function saveData(d) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch{}
+
+async function saveData(d) {
+  await window.supabase
+    .from("memos")
+    .upsert({
+      id: USER_ID,
+      content: JSON.stringify(d)
+    });
 }
 
 const rk=(f,t)=>`r:${f}>${t}`;
@@ -619,6 +632,7 @@ console.log("🔥 Supabase connected");
 
 </body>
 </html>
+
 
 
 
